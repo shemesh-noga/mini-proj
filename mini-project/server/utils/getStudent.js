@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 
-function deleteStudent(sql) {
+function getStudent(WHERE="") {
   return new Promise((resolve, reject) => {
     var con = mysql.createConnection({
       host: "localhost",
@@ -15,13 +15,14 @@ function deleteStudent(sql) {
         return;
       }
     });
-
-    con.query(sql, (err, result)=>{
+    const sql = `SELECT * FROM student ${WHERE}`
+    con.query(sql, (err, result,)=>{
         if (err) throw err;
-        console.log("Number of records deleted: " + result.affectedRows);
-        resolve(result);
+        console.log(result);
+        resolve(result)
         con.end(); 
-        })
     });
-  }
-module.exports.deleteStudent = deleteStudent;
+     
+});
+}
+module.exports.getStudent = getStudent;

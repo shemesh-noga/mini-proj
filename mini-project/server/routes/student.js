@@ -5,12 +5,19 @@ const path = require("path");
 const { checkExist } = require("../utils/checkExist");
 const { addStudent } = require("../utils/addNewStudent");
 const { deleteStudent } = require("../utils/deleteStudent");
+const { getStudent } = require("../utils/getStudent");
 
 
 
 /* GET home page. */
-router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" });
+router.get("/", async (req, res, next)=>{
+  try{
+    const students =await getStudent()
+    res.send(students);
+  }catch(err){
+    console.error(err);
+    res.status(404).send(`Error: Couldn't get students, ${err.message}`);
+  }
 });
 
 router.post("/", async (req, res, next) => {
@@ -48,5 +55,6 @@ router.delete("/:id", async (req,res)=>{
   }
 
 })
+
 
 module.exports = router;
