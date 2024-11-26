@@ -12,13 +12,25 @@ const { getStudent } = require("../utils/getStudent");
 /* GET home page. */
 router.get("/", async (req, res, next)=>{
   try{
-    const students =await getStudent()
+    const students = await getStudent()
     res.send(students);
   }catch(err){
     console.error(err);
     res.status(404).send(`Error: Couldn't get students, ${err.message}`);
   }
 });
+
+router.get("/classroom/:classID", async (req, res, next)=>{
+  try{
+    const where= `WHERE classroom_id = ${req.params.classID}`
+    const students = await getStudent(where)
+    res.send(students);
+  }catch(err){
+    console.error(err);
+    res.status(404).send(`Error: Couldn't get students, ${err.message}`);
+  }
+});
+
 
 router.post("/", async (req, res, next) => {
   // expected body: {name: , password: , classroomId: }
