@@ -17,15 +17,31 @@ router.post("/", async (req, res, next) => {
     if (!req.body.name || !req.body.password || !req.body.email)
       throw new Error("Missing name and/or password and/or email in the request's body.");
 
-    const exsist =await checkExist(req.body.name, req.body.password,"teacher");
-    if(exsist)throw new Error("already exists");
+    const teacher =await checkExist(
+      req.body.name,
+      req.body.password,
+      "teacher"
+    );
+    if(teacher)throw new Error("already exists");
     // add new teacher
-    const response=addTeacher(req.body.name, req.body.password,req.body.email);
-    if(!response)throw new Error ("something went wrong")
-    res.status(200).send(`added successfully, ${response}`)
+
+    const sql =`INSERT INTO teacher (name, password, email) VALUES (?,?,?)`;
+    const result = await addTeacher(sql, req);
+    console.log("result: ", result);
+
+    res.send(result);
   } catch (err) {
     console.error(err);
     res.status(404).send(`Error: Couldn't add teacher, ${err.message}`);
+
+
+
+  //   const response=addTeacher(sql, req);
+  //   if(!response)throw new Error ("something went wrong")
+  //   res.status(200).send(`added successfully, ${response}`)
+  // } catch (err) {
+  //   console.error(err);
+  //   res.status(404).send(`Error: Couldn't add teacher, ${err.message}`);
   }
 });
 
