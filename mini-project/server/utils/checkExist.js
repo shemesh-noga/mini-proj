@@ -32,4 +32,36 @@ function checkExist(name, password, table) {
   });
 }
 
+function checkSchoolExist(name, school_code, table) {
+  return new Promise((resolve, reject) => {
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "z10mz10m",
+      database: "school_Mini_Project",
+    });
+
+    con.connect(function (err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+    });
+
+    const sql = `SELECT * FROM ${table} WHERE name = ? AND school_code = ?`;
+
+    con.query(sql, [name, school_code], (err, result) => {
+      if (err) {
+        reject(err);
+      } else if (result.length === 0) {
+        resolve(false);
+      } else {
+        resolve(result[0]);
+      }
+      con.end();
+    });
+  });
+}
+
 module.exports.checkExist = checkExist;
+module.exports.checkSchoolExist = checkSchoolExist;
