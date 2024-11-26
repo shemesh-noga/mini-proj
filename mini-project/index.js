@@ -53,4 +53,4 @@ async function readEntities() {
   }
 }
 
-// readEntities();
+readEntities();
