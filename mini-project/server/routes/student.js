@@ -4,6 +4,7 @@ const mysql = require("mysql");
 const path = require("path");
 const { checkExist } = require("../utils/checkExist");
 const { addStudent } = require("../utils/addNewStudent");
+const { deleteStudent } = require("../utils/deleteStudent");
 
 
 
@@ -25,7 +26,6 @@ router.post("/", async (req, res, next) => {
     );
     if(student)throw new Error("already exists");
     // add new student
-
     const sql =`INSERT INTO student (name, password, classroom_id) VALUES (?,?,?)`;
     const result = await addStudent(sql, req);
     console.log("result: ", result);
@@ -36,5 +36,17 @@ router.post("/", async (req, res, next) => {
     res.status(404).send(`Error: Couldn't add student, ${err.message}`);
   }
 });
+
+router.delete("/:id", async (req,res)=>{
+  try {
+  var sql = `DELETE FROM student WHERE id =${req.params.id} `;
+  deleteStudent(sql)
+  res.send(`student whith id ${req.params.id} deleted successfully`);
+  }catch(err){
+    console.error(err);
+    res.status(404).send(`Error: Couldn't delete student, ${err.message}`);
+  }
+
+})
 
 module.exports = router;
