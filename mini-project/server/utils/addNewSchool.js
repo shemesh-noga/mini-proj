@@ -16,22 +16,46 @@ function addNewSchool(sql, req) {
       }
     });
 
+    // find the admin's id:
     con.query(
-      sql,
-      [req.body.schoolName, req.body.schoolCode],
-      (err, result) => {
+      "SELECT id FROM admin WHERE name = ? AND password = ?",
+      [req.body.name, req.body.password],
+      (err, adminResult) => {
         if (err) {
+          con.end();
           reject(err);
           return;
-        } else {
-          const newSchool = {
-            id: result.insertId,
-            name: req.body.schoolName,
-            school_code: req.body.schoolCode,
-          };
-          resolve(newSchool);
-          con.end();
         }
+
+        if (adminResult.length === 0) {
+          con.end();
+          reject(new Error("Admin not found or invalid information."));
+          return;
+        }
+
+        const adminId = adminResult[0].id;
+
+        // Step 2: Insert the new school
+        con.query(
+          "INSERT INTO school (name, admin_id) VALUES (?, ?)",
+          [req.body.schoolName, adminId],
+          (err, schoolResult) => {
+            if (err) {
+              con.end();
+              reject(err);
+              return;
+            }
+
+            const newSchool = {
+              id: schoolResult.insertId,
+              name: req.body.schoolName,
+              admin_id: adminId,
+            };
+
+            con.end();
+            resolve(newSchool);
+          }
+        );
       }
     );
   });

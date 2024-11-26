@@ -8,38 +8,63 @@ const addNewSchool = require("../utils/addNewSchool.js").addNewSchool;
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" });
+  try {
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "z10mz10m",
+      database: "school_Mini_Project",
+    });
+
+    con.connect(function (err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+    });
+
+    const sql = `
+    SELECT 
+      s.name AS school_name, a.name AS admin_name
+    FROM 
+      school AS s
+    INNER JOIN 
+      admin AS a
+    ON 
+      s.admin_id = a.id
+    `;
+
+    con.query(sql, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      res.send(result);
+    });
+  } catch (err) {}
 });
 
 /* POST */
 router.post("/", async (req, res, next) => {
-  // expected body: {schoolName: , schoolCode: , name: , password: }
+  // expected body: {schoolName: , name: , password: }
   try {
     // check that all feilds are defiened
     if (!req.body.name || !req.body.password)
       throw new Error("Missing name and/or password in the request's body.");
-    if (!req.body.schoolName || !req.body.schoolCode)
-      throw new Error(
-        "Missing school's name and/or password in the request's body."
-      );
+    if (!req.body.schoolName)
+      throw new Error("Missing school's name in the request's body.");
 
     // valudate the admin
     const admin = await checkExist(req.body.name, req.body.password, "admin");
     if (!admin) throw new Error("Access denied, no admin found");
 
     // check if a school with this name exists
-    const school = await checkSchoolExist(
-      req.body.schoolName,
-      req.body.schoolCode,
-      "school"
-    );
+    const school = await checkSchoolExist(req.body.schoolName, "school");
     if (school !== false)
       throw new Error(
         "There is already school with this name. try another name."
       );
 
     // create new school
-    const sql = `INSERT INTO school (name, school_code) VALUES (?, ?)`;
+    const sql = `INSERT INTO school (name, admin_id) VALUES (?, ?)`;
     const result = await addNewSchool(sql, req);
     console.log("result: ", result);
 
