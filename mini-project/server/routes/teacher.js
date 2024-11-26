@@ -33,15 +33,6 @@ router.post("/", async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(404).send(`Error: Couldn't add teacher, ${err.message}`);
-
-
-
-  //   const response=addTeacher(sql, req);
-  //   if(!response)throw new Error ("something went wrong")
-  //   res.status(200).send(`added successfully, ${response}`)
-  // } catch (err) {
-  //   console.error(err);
-  //   res.status(404).send(`Error: Couldn't add teacher, ${err.message}`);
   }
 });
 
