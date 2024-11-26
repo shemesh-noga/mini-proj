@@ -5,14 +5,19 @@ const path = require("path");
 const { checkExist } = require("../utils/checkExist");
 const { addTeacher } = require("../utils/addTeacher");
 const { changeInfo } = require("../utils/changeInfo");
+const { table } = require("console");
 
 /* GET home page. */
 router.get("/:id", async (req, res, next) => {
   try {
     const teacher = await getTeacher(req.params.id);
+    if (!teacher) throw new Error("Teacher doesn't exist");
 
-    if (teacher.length === 0) throw new Error("Teacher doesn't exist");
-  } catch (err) {}
+    res.send(teacher);
+  } catch (err) {
+    console.error(err);
+    res.status(404).send(`Error: Couldn't get teacher, ${err.message}`);
+  }
 });
 
 /* POST. */
@@ -47,9 +52,13 @@ router.post("/", async (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   // expected body: {name: ?, password: ?, email:? }
   try {
-    res.send(req.params.id);
-    const sql = `UPDATE teacher SET ? WHERE id = ?`;
-    changeInfo(sql, req);
+    const teacher = await getTeacher(req.params.id);
+    if (!teacher) throw new Error("Teacher doesn't exist");
+
+    const result = await changeInfo(req, "teacher", req.params.id);
+    console.log("result: ", result);
+
+    res.send(result);
   } catch (err) {
     console.error(err);
     res
@@ -59,26 +68,35 @@ router.put("/:id", async (req, res, next) => {
 });
 
 function getTeacher(id) {
-  var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "z10mz10m",
-    database: "school_Mini_Project",
-  });
+  return new Promise((resolve, reject) => {
+    var con = mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "z10mz10m",
+      database: "school_Mini_Project",
+    });
 
-  con.connect(function (err) {
-    if (err) {
-      reject(err);
-      return;
-    }
-  });
+    con.connect(function (err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+    });
 
-  const sql = `SELECT * FROM teacher WHERE id = ?`;
+    const sql = `SELECT * FROM teacher WHERE id = ?`;
 
-  con.query(sql, [id], (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    return result;
+    con.query(sql, [id], (err, result) => {
+      if (err) {
+        reject(err);
+        return;
+      } else if (result.length === 0) {
+        resolve(false);
+        return;
+      } else {
+        resolve(result);
+        con.end();
+      }
+    });
   });
 }
 
