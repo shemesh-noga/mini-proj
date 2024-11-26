@@ -2,7 +2,7 @@ var express = require("express");
 var router = express.Router();
 const mysql = require("mysql");
 const path = require("path");
-const checkAdmin = require("../utils/checkAdmin.js").checkAdmin;
+const checkExist = require("../utils/checkExist.js").checkExist;
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -15,12 +15,14 @@ router.post("/", async (req, res, next) => {
   try {
     if (!req.body.name || !req.body.password)
       throw new Error("Missing name and/or password in the request's body.");
+    // if (!req.body.schoolName || !req.body.schoolCode)
+    //   throw new Error(
+    //     "Missing school's name and/or password in the request's body."
+    //   );
 
-    const checkThisAdmin = await checkAdmin(req.body.name, req.body.password);
-    console.log("checkThisAdmin: ", checkThisAdmin);
+    const admin = await checkExist(req.body.name, req.body.password, "admin");
+    if (!admin) throw new Error("Access denied, no admin found");
 
-    if (checkThisAdmin === false)
-      throw new Error("Access denied, no admin found");
     res.send(`name: ${req.body.name}, password: ${req.body.password}`);
   } catch (err) {
     console.error(err);
