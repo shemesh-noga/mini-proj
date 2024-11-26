@@ -58,7 +58,7 @@ router.post("/", async (req, res, next) => {
 
     // check if a school with this name exists
     const school = await checkSchoolExist(req.body.schoolName, "school");
-    if (school !== false)
+    if (school)
       throw new Error(
         "There is already school with this name. try another name."
       );
@@ -66,8 +66,6 @@ router.post("/", async (req, res, next) => {
     // create new school
     const sql = `INSERT INTO school (name, admin_id) VALUES (?, ?)`;
     const result = await addNewSchool(sql, req);
-    console.log("result: ", result);
-
     res.send(result);
   } catch (err) {
     console.error(err);

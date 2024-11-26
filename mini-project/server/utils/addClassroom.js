@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 
-function addTeacher(sql, req) {
+function addClassroom(sql, req) {
   return new Promise((resolve, reject) => {
     var con = mysql.createConnection({
       host: "localhost",
@@ -18,23 +18,23 @@ function addTeacher(sql, req) {
 
     con.query(
       sql,
-      [req.body.name, req.body.password, req.body.email],
+      [req.body.grade, req.body._index, req.body.teacher_id],
       (err, result) => {
         if (err) {
           reject(err);
         } else {
           console.log("1 record inserted");
-          const newTeacher = {
+          const newClassroom = {
             id: result.insertId,
-            name: req.body.name,
-            password: req.body.password,
-            email: req.body.email,
+            grade: req.body.grade,
+            _index: req.body._index,
+            teacher_id: req.body.teacher_id,
           };
-          resolve(newTeacher);
+          resolve(newClassroom);
           con.end();
         }
       }
     );
   });
 }
-module.exports.addTeacher = addTeacher;
+module.exports.addClassroom = addClassroom;

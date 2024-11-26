@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 
-function addTeacher(sql, req) {
+function changeInfo(sql, req) {
   return new Promise((resolve, reject) => {
     var con = mysql.createConnection({
       host: "localhost",
@@ -37,4 +37,4 @@ function addTeacher(sql, req) {
     );
   });
 }
-module.exports.addTeacher = addTeacher;
+module.exports.changeInfo = changeInfo;
