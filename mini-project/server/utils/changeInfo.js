@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 
-function changeInfo(sql, req) {
+function changeInfo(req, table, givenId) {
   return new Promise((resolve, reject) => {
     var con = mysql.createConnection({
       host: "localhost",
@@ -16,25 +16,33 @@ function changeInfo(sql, req) {
       }
     });
 
-    con.query(
-      sql,
-      [req.body.name, req.body.password, req.body.email],
-      (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          console.log("1 record inserted");
-          const newTeacher = {
-            id: result.insertId,
-            name: req.body.name,
-            password: req.body.password,
-            email: req.body.email,
-          };
-          resolve(newTeacher);
-          con.end();
-        }
+    const fields = Object.keys(req.body)
+      .map((key) => `${key} = ?`)
+      .join(", ");
+    const values = Object.values(req.body);
+    values.push(givenId);
+
+    const sql = `UPDATE ${table} SET ${fields} WHERE id = ?`;
+
+    con.query(sql, values, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        con.query(
+          `SELECT * FROM ${table} WHERE id = ?`,
+          [givenId],
+          (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+              console.log(result);
+            }
+          }
+        );
+        con.end();
       }
-    );
+    });
   });
 }
 module.exports.changeInfo = changeInfo;
