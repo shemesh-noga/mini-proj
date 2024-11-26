@@ -32,7 +32,7 @@ function checkExist(name, password, table) {
   });
 }
 
-function checkSchoolExist(name, school_code, table) {
+function checkSchoolExist(name, table) {
   return new Promise((resolve, reject) => {
     var con = mysql.createConnection({
       host: "localhost",
@@ -48,9 +48,9 @@ function checkSchoolExist(name, school_code, table) {
       }
     });
 
-    const sql = `SELECT * FROM ${table} WHERE name = ? AND school_code = ?`;
+    const sql = `SELECT * FROM ${table} WHERE name = ? `;
 
-    con.query(sql, [name, school_code], (err, result) => {
+    con.query(sql, [name], (err, result) => {
       if (err) {
         reject(err);
       } else if (result.length === 0) {
